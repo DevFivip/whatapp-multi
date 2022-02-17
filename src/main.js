@@ -1,6 +1,6 @@
 require('dotenv').config();
 const fs = require('fs');
-const dialogflow = require("@google-cloud/dialogflow");
+// const dialogflow = require("@google-cloud/dialogflow");
 const { Client, MessageMedia } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const express = require("express");
@@ -17,49 +17,49 @@ app.use(
     })
 );
 const { User, History, Cliente, Remesa, Tasas, Bot, Pagos, BancoI, BancoV, Monedas } = require("../db");
-const dialogFlowConfig = require("../assets/newagent.json");
+// const dialogFlowConfig = require("../assets/newagent.json");
 const user = require("../models/usuarios");
 
-// Your google dialogflow project-id
-const PROJECID = dialogFlowConfig.project_id;
-// Configuration for the client
-const CONFIGURATION = {
-    credentials: {
-        private_key: dialogFlowConfig.private_key,
-        client_email: dialogFlowConfig.client_email,
-    },
-};
+// // Your google dialogflow project-id
+// const PROJECID = dialogFlowConfig.project_id;
+// // Configuration for the client
+// const CONFIGURATION = {
+//     credentials: {
+//         private_key: dialogFlowConfig.private_key,
+//         client_email: dialogFlowConfig.client_email,
+//     },
+// };
 
 // Create a new session
-const sessionClient = new dialogflow.SessionsClient(CONFIGURATION);
+// const sessionClient = new dialogflow.SessionsClient(CONFIGURATION);
 
 
 // Detect intent method
-const dialog = async (languageCode, queryText, sessionId) => {
-    let sessionPath = sessionClient.projectAgentSessionPath(PROJECID, sessionId);
+// const dialog = async (languageCode, queryText, sessionId) => {
+//     let sessionPath = sessionClient.projectAgentSessionPath(PROJECID, sessionId);
 
-    // The text query request.
-    let request = {
-        session: sessionPath,
-        queryInput: {
-            text: {
-                // The query to send to the dialogflow agent
-                text: queryText,
-                // The language used by the client (en-US)
-                languageCode: languageCode,
-            },
-        },
-    };
+//     // The text query request.
+//     let request = {
+//         session: sessionPath,
+//         queryInput: {
+//             text: {
+//                 // The query to send to the dialogflow agent
+//                 text: queryText,
+//                 // The language used by the client (en-US)
+//                 languageCode: languageCode,
+//             },
+//         },
+//     };
 
-    // Send request and log result
-    const responses = await sessionClient.detectIntent(request);
+//     // Send request and log result
+//     const responses = await sessionClient.detectIntent(request);
 
-    const result = responses[0].queryResult;
-    return {
-        response: result.fulfillmentText,
-        parameters: result.parameters,
-    };
-};
+//     const result = responses[0].queryResult;
+//     return {
+//         response: result.fulfillmentText,
+//         parameters: result.parameters,
+//     };
+// };
 
 // iniciar session
 
@@ -164,7 +164,7 @@ const comando9 = async (from) => {
 
 const replyAsk = async (from, answer, cliente_id) => {
     const msg = parse(answer);
-    const flow = await dialog("es", msg, "12312371231656765765123");
+    // const flow = await dialog("es", msg, "12312371231656765765123");
     // console.log(JSON.stringify(flow, null, 2))
 
     return new Promise((resolve, reject) => {
@@ -269,68 +269,68 @@ const replyAsk = async (from, answer, cliente_id) => {
         //     resolve(true);
         // }
 
-        if (flow.response === "[send_calculo_cambio]") {
+        // if (flow.response === "[send_calculo_cambio]") {
 
-            const monto_base =
-                flow.parameters.fields["unit-currency"].structValue?.fields.amount
-                    .numberValue;
+        //     const monto_base =
+        //         flow.parameters.fields["unit-currency"].structValue?.fields.amount
+        //             .numberValue;
 
-            const moneda_base =
-                flow.parameters.fields["unit-currency"].structValue?.fields.currency
-                    .stringValue;
-
-
-
-
-            let a = flow.parameters.fields["currency-name"].stringValue;
-            a = a ? true : flow.parameters.fields["currency-name"].listValue?.values[0]?.stringValue;
-
-            (async () => {
-
-                try {
-
-
-                    const model_moneda_base = await Monedas.findOne({ where: { empresa_id: process.env.EMPRESA_ID, iso: moneda_base } });
-                    const model_a = await Monedas.findOne({ where: { empresa_id: process.env.EMPRESA_ID, iso: a } });
-
-
-                    console.log('>>>>>>>>>>>>>>>>>>>>', model_moneda_base.id, model_a.id);
-
-                    Tasas.findOne({ where: { empresa_id: process.env.EMPRESA_ID, moneda_tasa_id: model_a.id, moneda_cambio_id: model_moneda_base.id } }).then(tasa => {
-                        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', { tasa });
-
-
-                        if (!!tasa) {
-                            const total = calcularCambios(
-                                tasa.monto,
-                                monto_base
-                            );
-                            client.sendMessage(from, "son:  " + total + ' ' + model_a.simbolo);
-                        } else {
-                            client.sendMessage(
-                                from,
-                                "Lo siento pero la moneda de envio no se encuantra disponible o la escribiste mal usa *soles, dolares, pesos colombianos, pesos chilenos* " +
-                                moneda_base + ' ' + a
-                            );
-                        }
-                    }, err => {
-                        client.sendMessage(
-                            from,
-                            "Lo siento pero la moneda de envio no se encuantra disponible o la escribiste mal usa *soles, dolares, pesos colombianos, pesos chilenos* " +
-                            moneda_base + ' ' + a
-                        );
-                    })
-
-                } catch (error) {
-                    console.log('moneda no encontrada')
-                }
+        //     const moneda_base =
+        //         flow.parameters.fields["unit-currency"].structValue?.fields.currency
+        //             .stringValue;
 
 
 
-            })()
+
+        //     let a = flow.parameters.fields["currency-name"].stringValue;
+        //     a = a ? true : flow.parameters.fields["currency-name"].listValue?.values[0]?.stringValue;
+
+        //     (async () => {
+
+        //         try {
 
 
-        }
+        //             const model_moneda_base = await Monedas.findOne({ where: { empresa_id: process.env.EMPRESA_ID, iso: moneda_base } });
+        //             const model_a = await Monedas.findOne({ where: { empresa_id: process.env.EMPRESA_ID, iso: a } });
+
+
+        //             console.log('>>>>>>>>>>>>>>>>>>>>', model_moneda_base.id, model_a.id);
+
+        //             Tasas.findOne({ where: { empresa_id: process.env.EMPRESA_ID, moneda_tasa_id: model_a.id, moneda_cambio_id: model_moneda_base.id } }).then(tasa => {
+        //                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', { tasa });
+
+
+        //                 if (!!tasa) {
+        //                     const total = calcularCambios(
+        //                         tasa.monto,
+        //                         monto_base
+        //                     );
+        //                     client.sendMessage(from, "son:  " + total + ' ' + model_a.simbolo);
+        //                 } else {
+        //                     client.sendMessage(
+        //                         from,
+        //                         "Lo siento pero la moneda de envio no se encuantra disponible o la escribiste mal usa *soles, dolares, pesos colombianos, pesos chilenos* " +
+        //                         moneda_base + ' ' + a
+        //                     );
+        //                 }
+        //             }, err => {
+        //                 client.sendMessage(
+        //                     from,
+        //                     "Lo siento pero la moneda de envio no se encuantra disponible o la escribiste mal usa *soles, dolares, pesos colombianos, pesos chilenos* " +
+        //                     moneda_base + ' ' + a
+        //                 );
+        //             })
+
+        //         } catch (error) {
+        //             console.log('moneda no encontrada')
+        //         }
+
+
+
+        //     })()
+
+
+        // }
 
         // if (flow.response === "[crear_ticket_recarga]") {
         // }
