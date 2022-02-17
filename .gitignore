@@ -1,0 +1,4 @@
+/node_modules
+/WWebJS
+.env
+/images/history/*
